@@ -1,0 +1,42 @@
+<odoo>
+  <data>
+      <record id="view_sales_form_raw_material_tab" model="ir.ui.view">
+            <field name="name">view.salesorder.raw.material.tab</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page/field[@name='order_line']/.." position="after">
+                    <page string="Raw Material" name="sale_raw_material">
+                        <field name="raw_material_ids">
+                                <tree editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="uom_id"/>
+                                    <field name="value"/>
+                                </tree>
+                        </field>
+                    </page>
+                </xpath>
+    <!--            for selection Type-->
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="is_dying_company"/>
+                    <field name="type" attrs="{'readonly' : [('is_dying_company', '=', True)]}"/>
+                </xpath>
+                <xpath expr="//button[@name='action_draft']" position="after">
+                    <button name="create_po" type="object" string="PO" class="btn-success" attrs="{'invisible' : [('type', '!=', 'lana')]}"/>
+                    <button name="create_receive" type="object" string="Receiving" class="btn-success" attrs="{'invisible' : [('type', '!=', 'gher')]}"/>
+                    <button name="create_bom" type="object" string="BOM" class="btn-success"/>
+                </xpath>
+            </field>
+      </record>
+<!--      <record id="is_dying_company" model="ir.ui.view">-->
+<!--            <field name="name">is.dying.company</field>-->
+<!--            <field name="model">res.company</field>-->
+<!--            <field name="inherit_id" ref="base.view_company_form"/>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <xpath expr="//field[@name='partner_id']" position="after">-->
+<!--                    <field name="is_dying_company"/>-->
+<!--                </xpath>-->
+<!--            </field>-->
+<!--      </record>-->
+  </data>
+</odoo>

@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+      <record id="group_dying_company_user" model="res.groups">
+            <field name="name">Dying Company Group</field>
+      </record>
+
+      <record id="group_causal_company_user" model="res.groups">
+            <field name="name">causal Company Group</field>
+      </record>
+
+      <record id="group_cloth_company_user" model="res.groups">
+            <field name="name">Cloth Company Group</field>
+      </record>
+
+      <record id="group_dying_cloth_company_user" model="res.groups">
+            <field name="name">Dying Cloth Company Group</field>
+      </record>
+    </data>
+</odoo>
