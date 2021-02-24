@@ -1,16 +1,44 @@
+
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+from datetime import date, datetime, timedelta
 
+class AccountMoveLine(models.Model): 
+    _inherit = "account.move"
+    name = fields.Char(string='Number', required=True, readonly=False, copy=False, default='/')
+    
+class PurchaseOrder(models.Model):
+    _inherit = "purchase.order"
+    invoice_status = fields.Selection([
+        ('no', 'Nothing to Bill'),
+        ('to invoice', 'Waiting Bills'),
+        ('invoiced', 'Fully Billed'),
+    ], string='Billing Status', store=True, readonly=False, copy=False)
 
-from odoo import models, fields, api
+class SaleReport(models.Model):
+    _inherit = 'sale.order'
+    invoice_status = fields.Selection([
+        ('upselling', 'Upselling Opportunity'),
+        ('invoiced', 'Fully Invoiced'),
+        ('to invoice', 'To Invoice'),
+        ('no', 'Nothing to Invoice')
+        ], string="Invoice Status", readonly=False)
+    
+class account_payment(models.Model):
+    _inherit = "account.payment"
+    move_name = fields.Char(string='Journal Entry Name', readonly=False,
+        default=False, copy=False,
+        help="Technical field holding the number given to the journal entry, automatically set when the statement line is reconciled then stored to set the same number again if the line is cancelled, set to draft and re-processed again.")
 
-
-class action_accounting(models.Model):
+    
+class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
     
-    today = fields.Date(string="Today", default=fields.Date.context_today)
+    today = fields.Date(string="Today", default=datetime.now().strftime('%Y-%m-%d'))
     general_balance = fields.Monetary(string='Balance', store=True,
                                       compute='compute_balance')
+#     balance_sum = fields.Float('Quantity', compute='compute_balance_sum')
+    
 
     @api.depends('debit', 'credit')
     def compute_balance(self):   
@@ -19,35 +47,45 @@ class action_accounting(models.Model):
                 line.general_balance = line.debit - line.credit
             else:
                 line.general_balance = 0
-        
-#     def open_action(self):
-#         """return action based on type for related journals"""
-#         action_name = self._context.get('action_name')
+     
+            
+class AccountAccount(models.Model):
+    _inherit = "account.account"
+    
+    total_debit = fields.Monetary(string="Total Debit", compute='compute_total_debit_balance_credit')
+    total_credit = fields.Monetary(string="Total Credit", compute='compute_total_debit_balance_credit')
+    total_balance = fields.Monetary(string="Total Balance", compute='compute_total_debit_balance_credit')    
+    today = fields.Date(string="Today", compute='compute_total_today_debit_balance_credit')
+    total_debit_today = fields.Monetary(string="Total Debit Today", compute='compute_total_today_debit_balance_credit')
+    total_credit_today = fields.Monetary(string="Total Credit Today", compute='compute_total_today_debit_balance_credit')
+    total_balance_today = fields.Monetary(string="Total Balance Today", compute='compute_total_today_debit_balance_credit')
+    total_debit_beforetoday = fields.Monetary(string="Total Debit Before Today", compute='compute_total_today_debit_balance_credit')
+    total_credit_beforetoday = fields.Monetary(string="Total Credit Before Today", compute='compute_total_today_debit_balance_credit')
+    total_balance_beforetoday = fields.Monetary(string="Total Balance Before Today", compute='compute_total_today_debit_balance_credit')
 
-#         # Find action based on journal.
-#         if not action_name:
-# #             if self.account_id.id == 819:
-#             action_name = 'action_treasury_egp'
-#         if '.' not in action_name:
-#             action_name = 'account.%s' % action_name
+    def compute_total_debit_balance_credit(self):
+        for record in self:
+            total_debit = total_credit = total_balance = 0.0
+            for line in self.env['account.move.line'].search([('account_id', '=', record.id),('move_id.state', '=', 'posted')]):
+                total_debit += line.debit
+                total_credit += line.credit 
+                total_balance += line.balance
+            record.total_debit = total_debit
+            record.total_credit = total_credit
+            record.total_balance = total_balance
 
-#         action = self.env.ref(action_name).read()[0]
-#         context = self._context.copy()
-#         if 'context' in action and type(action['context']) == str:
-#             context.update(ast.literal_eval(action['context']))
-#         else:
-#             context.update(action.get('context', {}))
-#         action['context'] = context
-#         action['context'].update({
-#             'default_journal_id': self.id,
-#             'search_default_journal_id': self.id,
-#         })
+    def compute_total_today_debit_balance_credit(self):
+        for record in self:
+            record.today = fields.Date.today()
+            total_credit_today = total_debit_today = total_balance_today = 0.0
+            for line in self.env['account.move.line'].search([('account_id', '=', record.id),('date', '=', fields.Date.today()),('move_id.state', '=', 'posted')]):
+                total_debit_today += line.debit
+                total_credit_today += line.credit 
+                total_balance_today += line.balance
+            record.total_debit_today = total_debit_today
+            record.total_credit_today = total_credit_today
+            record.total_balance_today = total_balance_today
+            record.total_debit_beforetoday = record.total_debit - total_debit_today
+            record.total_credit_beforetoday = record.total_credit - total_credit_today
+            record.total_balance_beforetoday = record.total_balance - total_balance_today
 
-#         domain_type_field = action['res_model'] == 'account.move.line' and 'move_id.type' or 'type' # The model can be either account.move or account.move.line
-
-#         if self.type == 'sale':
-#             action['domain'] = [(domain_type_field, 'in', ('out_invoice', 'out_refund', 'out_receipt'))]
-#         elif self.type == 'purchase':
-#             action['domain'] = [(domain_type_field, 'in', ('in_invoice', 'in_refund', 'in_receipt'))]
-
-#         return action
