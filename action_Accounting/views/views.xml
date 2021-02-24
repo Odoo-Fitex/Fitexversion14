@@ -1,0 +1,130 @@
+<odoo>
+  <data>  
+ <record id="filter_general_ledger_today" model="ir.ui.view" >
+        <field name="name">filter.general.ledger.today</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+        <field name="arch" type="xml">
+                <xpath expr="//filter[@name='posted']" position="after">
+                  <separator/>
+                   <filter string="Today" name="today" domain="[('date', '=', 'today')]"/>
+                  <filter string="Before Today" name="before today" domain="[('date', '&lt;', 'today')]"/>
+                  <separator/>
+                  <separator/>
+                  <filter string="Treasury" name="treasury" domain="[('account_id', 'ilike', 'treasury')]"/>
+                  <separator/>
+                  <separator/>
+                  <filter string="Treasury-EGP-" name="treasuryegp" domain="[('account_id', 'ilike', 'treasury'),('account_id', 'ilike', 'egp')]"/>
+                  <separator/>                      
+                </xpath>
+
+        </field>
+    </record>
+ 
+    <record id="view_general_ledger_balance" model="ir.ui.view">
+        <field name="name">view.general.ledger.balance</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree_grouped"/>
+        <field name="arch" type="xml">
+                <xpath expr="//field[@name='credit']" position="after">
+                     <field name="balance" sum="Total Balance"/>
+                </xpath>
+
+        </field>
+    </record>
+    
+    
+    
+<!-- <record id="general_ledger_treasury_kanban" model="ir.ui.view">
+        <field name="name">general.ledger.treasury.kanban</field>
+        <field name="model">account.move.line</field>
+        <field name="mode">primary</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_kanban_dashboard o_account_kanban" create="0">
+                <field name="account_id"/>
+                <field name="debit"/>
+                <field name="credit"/>
+                <field name="balance"/>
+                <templates>
+                    <t t-name="kanban-box">
+                      <div class="oe_kanban_global_click">
+                            
+                           <div class="o_kanban_card_header">
+                             <div class="o_kanban_card_header_title">
+                                <div class="o_primary">
+                                    <a type="object" name="open_action"><field name="account_id"/></a>
+                                </div>
+                            </div>
+                              <div class="o_primary o_kanban_record_title">
+                                <div t-att-class="'container o_kanban_card_content'">
+                                   <div class="row">
+                                    <div class="col overflow-hidden text-left">
+                                        <field name="move_id"/>  
+                                </div>
+                                </div>
+                                  </div>
+                              </div>
+                           </div>
+                      
+                                     <div class="row">
+                                    <div class="col overflow-hidden text-left">
+                                        <span title="Debit">Debit</span>
+                                    </div>
+                                    <div class="col-auto text-right">
+                                        <field name="debit"/>
+                                    </div>
+                                </div>
+                                   <div class="row">
+                                    <div class="col overflow-hidden text-left">
+                                        <span title="Credit">Credit</span>
+                                    </div>
+                                    <div class="col-auto text-right">
+                                       <field name="credit"/>
+                                    </div>
+                                </div>
+                        <div class="row">
+                                    <div class="col overflow-hidden text-left">
+                                        <span title="Balance">Balance</span>
+                                    </div>
+                                    <div class="col-auto text-right">
+                                        <field name="balance"/>
+                                    </div>
+                                </div>
+                      </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record> -->
+    
+    
+         <record id="action_treasury_general_ledger" model="ir.actions.act_window">
+            <field name="name">Treasury</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.move.line</field>
+            <field name="view_mode">tree,kanban</field>
+            <field name="search_view_id" ref="account.view_account_move_line_filter"/>    
+            <field name="view_id" ref="account.view_move_line_tree_grouped_general"/>
+            <field name="context">{"search_default_treasury": 1, "search_default_today": 1, "search_default_posted": 1, "group_by": 'account_id'}</field>
+        </record>
+    
+<!--         <record id="action_treasury_egp" model="ir.actions.act_window">
+            <field name="name">Treasury-EGP-</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.move.line</field>
+            <field name="view_mode">tree,kanban</field>
+            <field name="search_view_id" ref="account.view_bank_statement_tree"/>    
+            <field name="view_id" ref="general_ledger_treasury_kanban"/>
+            <field name="context">{"search_default_posted": 1, "search_default_treasuryegp": 1, "search_default_today": 1,  "group_by": 'account_id'}</field>
+        </record> -->
+    
+     <menuitem
+            name="Treasury"
+            id="menu_action_treasury_general_ledger"
+            action="action_treasury_general_ledger"
+            parent="account.menu_finance_entries_accounting_miscellaneous"
+            sequence="1"/>
+    
+   </data>
+</odoo>
