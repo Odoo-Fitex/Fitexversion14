@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-{
+{ 
     'name': "Odoo14 action_SO",
 
     'summary': """
