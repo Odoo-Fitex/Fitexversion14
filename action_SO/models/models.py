@@ -2,7 +2,7 @@
 from odoo import models, fields, api
 
 
-class action_SO(models.Model):
+class action_SO(models.Model): 
     _inherit = 'sale.order'  
 
     delivery_distination = fields.Char(string="Dye House Address")
