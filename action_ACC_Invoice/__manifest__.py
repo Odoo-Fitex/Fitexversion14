@@ -10,17 +10,17 @@
         Long description of module's purpose
     """,
 
-    'author': "IBS",
-    'website': "http://www.ibs-odoo.com",
+    'author': "",
+    'website': "",
 
     # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/13.0/odoo/addons/base/data/ir_module_category_data.xml
+    # Check https://github.com/odoo/odoo/blob/14.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'Uncategorized',
+    'category': 'Accounting',
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'sale' , 'account' ],
+    'depends': ['base', 'sale', 'account_accountant','account'],
 
     # always loaded
     'data': [
